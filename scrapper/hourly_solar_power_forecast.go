@@ -90,7 +90,7 @@ func FetchAndSaveSolarForecast(rowCount int, startDateTime, endDateTime string) 
 	}
 
 	// Create the file path inside the response directory
-	fileName := filepath.Join(responseDir, fmt.Sprintf("solar_forecast_%s_to_%s.csv", safeStart, safeEnd))
+	fileName := filepath.Join(responseDir, fmt.Sprintf("hourly_solar_forecast.csv"))
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Error creating file: %v", err)

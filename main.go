@@ -3,8 +3,8 @@ package main
 import "333/scrapper"
 
 func main() {
-	rowCount := 200
-	startDateTime := "8/2/2024 00:00"
+	rowCount := 1000
+	startDateTime := "7/2/2024 00:00"
 	endDateTime := "9/7/2024 23:59"
 
 	scrapper.FetchAndSaveLoadForecast(rowCount, startDateTime, endDateTime)

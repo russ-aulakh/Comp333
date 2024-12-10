@@ -90,7 +90,7 @@ func FetchAndSaveLoadForecast(rowCount int, startDateTime, endDateTime string) {
 	}
 
 	// Create the file path inside the response directory
-	fileName := filepath.Join(responseDir, fmt.Sprintf("load_frcstd_hist_%s_to_%s_load.csv", safeStart, safeEnd))
+	fileName := filepath.Join(responseDir, fmt.Sprintf("load_frcstd_hist.csv"))
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Error creating file: %v", err)

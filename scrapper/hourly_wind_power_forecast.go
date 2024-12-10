@@ -99,7 +99,7 @@ func FetchAndSaveWindPowerForecast(rowCount int, startDateTime, endDateTime stri
 		log.Fatalf("Error creating response directory: %v", err)
 	}
 
-	fileName := filepath.Join(responseDir, fmt.Sprintf("wind_power_forecast_%s_to_%s.csv", safeStart, safeEnd))
+	fileName := filepath.Join(responseDir, fmt.Sprintf("hourly_wind_power.csv"))
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Error creating file: %v", err)

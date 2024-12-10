@@ -101,7 +101,7 @@ func FetchAndSaveRT_HRL_LMPS(rowCount int, startDateTime, endDateTime string) {
 		log.Fatalf("Error creating response directory: %v", err)
 	}
 
-	fileName := filepath.Join(responseDir, fmt.Sprintf("rt_hrl_lmps_%s_to_%s.csv", safeStart, safeEnd))
+	fileName := filepath.Join(responseDir, fmt.Sprintf("rt_hrl_lmps.csv"))
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Error creating file: %v", err)
