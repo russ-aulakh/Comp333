@@ -1,15 +1,41 @@
 package main
 
-import "333/scrapper"
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"333/scrapper"
+)
 
 func main() {
-	rowCount := 1000
-	startDateTime := "7/2/2024 00:00"
-	endDateTime := "9/7/2024 23:59"
+	if len(os.Args) != 5 {
+		fmt.Println("Usage: fetch_data <function_name> <start_datetime> <end_datetime> <row_count>")
+		os.Exit(1)
+	}
 
-	scrapper.FetchAndSaveLoadForecast(rowCount, startDateTime, endDateTime)
-	scrapper.FetchAndSaveRT_HRL_LMPS(rowCount, startDateTime, endDateTime)
-	scrapper.FetchAndSaveSolarForecast(rowCount, startDateTime, endDateTime)
-	scrapper.FetchAndSaveWindPowerForecast(rowCount, startDateTime, endDateTime)
+	functionName := os.Args[1]
+	startDateTime := os.Args[2]
+	endDateTime := os.Args[3]
+	rowCount, err := strconv.Atoi(os.Args[4])
+	if err != nil {
+		fmt.Println("Invalid row count:", err)
+		os.Exit(1)
+	}
 
+	switch functionName {
+	case "LoadForecast":
+		scrapper.FetchAndSaveLoadForecast(rowCount, startDateTime, endDateTime)
+	case "RT_HRL_LMPS":
+		scrapper.FetchAndSaveRT_HRL_LMPS(rowCount, startDateTime, endDateTime)
+	case "SolarForecast":
+		scrapper.FetchAndSaveSolarForecast(rowCount, startDateTime, endDateTime)
+	case "WindPowerForecast":
+		scrapper.FetchAndSaveWindPowerForecast(rowCount, startDateTime, endDateTime)
+	case "x":
+		os.Exit(0)
+	default:
+		fmt.Println("Invalid function name:", functionName)
+		os.Exit(1)
+	}
 }

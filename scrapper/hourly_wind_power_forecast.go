@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // WindPowerForecastItem represents a single forecast record.
@@ -32,10 +33,9 @@ type WindPowerForecastResponse struct {
 
 // FetchAndSaveWindPowerForecast fetches data from the wind power forecast API and saves it as a CSV file.
 func FetchAndSaveWindPowerForecast(rowCount int, startDateTime, endDateTime string) {
-	// URL-encode the date range
-	start := url.QueryEscape("7/1/2024 14:00")
-	end := url.QueryEscape("12/9/2024 14:59")
 
+	start := url.QueryEscape(startDateTime)
+	end := url.QueryEscape(endDateTime)
 	// Construct the API URL
 	apiURL := fmt.Sprintf(
 		"https://api.pjm.com/api/v1/hourly_wind_power_forecast?rowCount=%d&sort=evaluated_at_utc&order=Desc&startRow=1&isActiveMetadata=true&fields=datetime_beginning_ept,datetime_beginning_utc,datetime_ending_ept,datetime_ending_utc,evaluated_at_ept,evaluated_at_utc,wind_forecast_mwh&evaluated_at_ept=%sto%s",
@@ -90,16 +90,29 @@ func FetchAndSaveWindPowerForecast(rowCount int, startDateTime, endDateTime stri
 	safeEnd = strings.ReplaceAll(safeEnd, ":", "_")
 
 	// Create CSV file
-	responseDir := fmt.Sprintf("response_%s_to_%s",
-		strings.ReplaceAll(startDateTime, "/", "_"),
-		strings.ReplaceAll(endDateTime, "/", "_"),
-	)
+	responseDir := fmt.Sprintf("DataLake/Raw/hourly_wind_power_forecast")
 	err = os.MkdirAll(responseDir, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Error creating response directory: %v", err)
 	}
 
-	fileName := filepath.Join(responseDir, fmt.Sprintf("hourly_wind_power.csv"))
+	layout := "01/02/2006 15:04"
+	startT, err := time.Parse(layout, startDateTime)
+	if err != nil {
+		log.Fatalf("Error parsing start date: %v", err)
+	}
+	endT, err := time.Parse(layout, endDateTime)
+	if err != nil {
+		log.Fatalf("Error parsing end date: %v", err)
+	}
+
+	startFormatted := startT.Format("01_02_2006_15_04")
+	endFormatted := endT.Format("01_02_2006_15_04")
+
+	fileName := filepath.Join(
+		responseDir,
+		fmt.Sprintf("%s_to_%s.csv", startFormatted, endFormatted),
+	)
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Error creating file: %v", err)

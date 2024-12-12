@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type LoadForecastItem struct {
@@ -32,7 +33,7 @@ func FetchAndSaveLoadForecast(rowCount int, startDateTime, endDateTime string) {
 	start := url.QueryEscape(startDateTime)
 	end := url.QueryEscape(endDateTime)
 
-	apiURL := fmt.Sprintf("https://api.pjm.com/api/v1/load_frcstd_hist?rowCount=%d&sort=forecast_hour_beginning_utc&order=Asc&startRow=1&isActiveMetadata=true&fields=evaluated_at_ept,evaluated_at_utc,forecast_area,forecast_hour_beginning_ept,forecast_hour_beginning_utc,forecast_load_mw&forecast_hour_beginning_ept=%sto%s", rowCount, start, end)
+	apiURL := fmt.Sprintf("https://api.pjm.com/api/v1/load_frcstd_hist?rowCount=%d&sort=forecast_hour_beginning_utc&order=Desc&startRow=1&isActiveMetadata=true&fields=evaluated_at_ept,evaluated_at_utc,forecast_area,forecast_hour_beginning_ept,forecast_hour_beginning_utc,forecast_load_mw&forecast_hour_beginning_ept=%sto%s", rowCount, start, end)
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
@@ -80,17 +81,30 @@ func FetchAndSaveLoadForecast(rowCount int, startDateTime, endDateTime string) {
 	safeEnd := strings.ReplaceAll(endDateTime, "/", "_")
 	safeEnd = strings.ReplaceAll(safeEnd, ":", "_")
 
-	responseDir := fmt.Sprintf("response_%s_to_%s",
-		strings.ReplaceAll(startDateTime, "/", "_"),
-		strings.ReplaceAll(endDateTime, "/", "_"),
-	)
+	responseDir := fmt.Sprintf("DataLake/Raw/load_frcstd_hist")
 	err = os.MkdirAll(responseDir, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Error creating response directory: %v", err)
 	}
 
 	// Create the file path inside the response directory
-	fileName := filepath.Join(responseDir, fmt.Sprintf("load_frcstd_hist.csv"))
+	layout := "01/02/2006 15:04"
+	startT, err := time.Parse(layout, startDateTime)
+	if err != nil {
+		log.Fatalf("Error parsing start date: %v", err)
+	}
+	endT, err := time.Parse(layout, endDateTime)
+	if err != nil {
+		log.Fatalf("Error parsing end date: %v", err)
+	}
+
+	startFormatted := startT.Format("01_02_2006_15_04")
+	endFormatted := endT.Format("01_02_2006_15_04")
+
+	fileName := filepath.Join(
+		responseDir,
+		fmt.Sprintf("%s_to_%s.csv", startFormatted, endFormatted),
+	)
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Error creating file: %v", err)
